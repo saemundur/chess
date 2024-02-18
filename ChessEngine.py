@@ -13,6 +13,7 @@ class GameState():
     ]
     self.white_to_move = True
     self.move_log = []
+    self.move_functions = {"P": self.get_pawn_moves, "R": self.get_rook_moves, "N": self.get_knight_moves, "B": self.get_bishop_moves, "Q": self.get_queen_moves, "K": self.get_king_moves}
 
   def make_move(self, move):
     self.board[move.start_row][move.start_col] = "--"
@@ -42,18 +43,7 @@ class GameState():
         turn = self.board[r][c][0]
         if (turn == "w" and self.white_to_move) or (turn == "b" and not self.white_to_move):
           piece = self.board[r][c][1]
-          if piece == "P":
-            self.get_pawn_moves(r, c, moves)
-          elif piece == "R":
-            self.get_rook_moves(r, c, moves)
-          elif piece == "N":
-            self.get_knight_moves(r, c, moves)
-          elif piece == "B":
-            self.get_bishop_moves(r, c, moves)
-          elif piece == "Q":
-            self.get_queen_moves(r, c, moves)
-          elif piece == "K":
-            self.get_king_moves(r, c, moves)
+          self.move_functions[piece](r, c, moves)
     return moves
 
   def get_pawn_moves(self, r, c, moves):
