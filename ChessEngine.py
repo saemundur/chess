@@ -51,7 +51,7 @@ class GameState():
     return moves
 
   def get_pawn_moves(self, r, c, moves):
-    # Get a list of valid pawn moves
+    # Get a list of valid pawn moves for white
     if self.white_to_move and r >= 1:
       if self.board[r-1][c] == "--":
         moves.append(Move((r, c), (r-1, c), self.board))
@@ -63,6 +63,7 @@ class GameState():
       if c+1 <= 7:
         if self.board[r-1][c+1][0] == "b":
           moves.append(Move((r, c), (r-1, c+1), self.board))
+    # Get a list of valid pawn moves for black
     elif not self.white_to_move and r <= 6:
       if self.board[r+1][c] == "--":
         moves.append(Move((r, c), (r+1, c), self.board))

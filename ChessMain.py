@@ -13,12 +13,13 @@ def load_images():
     for piece in pieces:
         IMAGES[piece] = p.transform.scale(p.image.load("icons/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
-def draw_game_state(screen, gs):
+def draw_game_state(screen, gs, sq_selected):
   draw_board(screen)
   draw_pieces(screen, gs.board)
+  highlight_square(screen, gs, sq_selected)
 
 def draw_board(screen):
-  colors = [p.Color("white"), p.Color("dark green")]
+  colors = [p.Color("white"), p.Color("light grey")]
   for r in range(DIMENSION):
     for c in range(DIMENSION):
       color = colors[((r + c) % 2)]
@@ -30,6 +31,22 @@ def draw_pieces(screen, board):
       piece = board[r][c]
       if piece != "--":
         screen.blit(IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+
+def highlight_square(screen, gs, sq_selected):
+  valid_moves = gs.get_valid_moves()
+  if sq_selected != ():
+    r, c = sq_selected
+    if gs.board[r][c][0] == ("w" if gs.white_to_move else "b"):
+      # Highlight the selected square
+      s = p.Surface((SQ_SIZE, SQ_SIZE))
+      s.set_alpha(100) # Transparency value
+      s.fill(p.Color("blue"))
+      screen.blit(s, (c*SQ_SIZE, r*SQ_SIZE))
+      # Highlight the moves from that square
+      s.fill(p.Color("yellow"))
+      for move in valid_moves:
+        if move.start_row == r and move.start_col == c:
+          screen.blit(s, (move.end_col*SQ_SIZE, move.end_row*SQ_SIZE))
 
 def main():
   p.init()
@@ -64,10 +81,10 @@ def main():
             print(move.get_chess_notation())
             gs.make_move(move)
             move_made = True
-          sq_selected = ()
-          player_clicks = []
-          # print(DataFrame(gs.board))
-
+            sq_selected = ()
+            player_clicks = []
+          else:
+            player_clicks = [sq_selected]
       # Key handler
       elif e.type == p.KEYDOWN:
         if e.key == p.K_z: # Undo when 'z' is pressed
@@ -80,7 +97,7 @@ def main():
       valid_moves = gs.get_valid_moves()
       move_made = False
 
-    draw_game_state(screen, gs)
+    draw_game_state(screen, gs, sq_selected)
     clock.tick(MAX_FPS)
     p.display.flip()
 
