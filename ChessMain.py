@@ -38,10 +38,27 @@ def main():
   gs = CE.GameState()
   loadImages()
   running = True
+  sqSelected = () # No square is selected, keep track of the last click of the user (tuple: (row, col))
+  playerClicks = [] # Keep track of player clicks (two tuples: [(6, 4), (4, 4)])
   while running:
     for e in p.event.get():
       if e.type == p.QUIT:
         running = False
+      elif e.type == p.MOUSEBUTTONDOWN:
+        location = p.mouse.get_pos()
+        col = location[0]//SQ_SIZE
+        row = location[1]//SQ_SIZE
+        if sqSelected == (row, col):
+          sqSelected = () # Deselect
+        else:
+          sqSelected = (row, col)
+          playerClicks.append(sqSelected)
+        if len(playerClicks) == 2:
+          move = CE.Move(playerClicks[0], playerClicks[1], gs.board)
+          print(move.get_chess_notation())
+          gs.make_move(move)
+          sqSelected = ()
+          playerClicks = []
     drawGameState(screen, gs)
     clock.tick(MAX_FPS)
     p.display.flip()
