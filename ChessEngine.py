@@ -13,7 +13,14 @@ class GameState():
     ]
     self.white_to_move = True
     self.move_log = []
-    self.move_functions = {"P": self.get_pawn_moves, "R": self.get_rook_moves, "N": self.get_knight_moves, "B": self.get_bishop_moves, "Q": self.get_queen_moves, "K": self.get_king_moves}
+    self.move_functions = {
+      "P": self.get_pawn_moves,
+      "R": self.get_rook_moves,
+      "N": self.get_knight_moves,
+      "B": self.get_bishop_moves,
+      "Q": self.get_queen_moves,
+      "K": self.get_king_moves
+    }
 
   def make_move(self, move):
     self.board[move.start_row][move.start_col] = "--"
@@ -28,12 +35,9 @@ class GameState():
       self.board[move.start_row][move.start_col] = move.piece_moved
       self.board[move.end_row][move.end_col] = move.piece_captured
       self.white_to_move = not self.white_to_move
-    pass
 
   def get_valid_moves(self):
     return self.get_all_possible_moves()
-    # Get a list of valid moves in the current game state
-    pass
 
   def get_all_possible_moves(self):
     # Get a list of all possible moves in the current game state
@@ -89,7 +93,7 @@ class GameState():
           else:
             break
     return moves
-  
+
   def get_knight_moves(self, r, c, moves):
     # Get a list of valid knight moves
     directions = ((-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1))
@@ -101,7 +105,7 @@ class GameState():
         if end_piece == "--" or end_piece[0] != self.board[r][c][0]:
           moves.append(Move((r, c), (end_row, end_col), self.board))
     return moves
-  
+
   def get_bishop_moves(self, r, c, moves):
     # Get a list of valid bishop moves
     directions = ((-1, -1), (-1, 1), (1, -1), (1, 1))
@@ -119,13 +123,13 @@ class GameState():
           else:
             break
     return moves
-  
+
   def get_queen_moves(self, r, c, moves):
     # Get a list of valid queen moves
     self.get_rook_moves(r, c, moves)
     self.get_bishop_moves(r, c, moves)
     return moves
-  
+
   def get_king_moves(self, r, c, moves):
     # Get a list of valid king moves
     directions = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
@@ -137,7 +141,7 @@ class GameState():
         if end_piece == "--" or end_piece[0] != self.board[r][c][0]:
           moves.append(Move((r, c), (end_row, end_col), self.board))
     return moves
-  
+
   def is_checkmate(self):
     # Check if the game is in checkmate
     pass
@@ -157,6 +161,7 @@ class GameState():
   def get_best_move(self):
     # Get the best move for the current game state
     pass
+
 
 class Move():
   # Maps keys to values
@@ -181,6 +186,6 @@ class Move():
 
   def get_chess_notation(self):
     return self.get_rank_file(self.start_row, self.start_col) + self.get_rank_file(self.end_row, self.end_col)
-  
+
   def get_rank_file(self, r, c):
     return self.cols_to_file[c] + self.rows_to_rank[r]
