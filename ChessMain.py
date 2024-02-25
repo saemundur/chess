@@ -93,12 +93,24 @@ def main():
           move_made = True
           sq_selected = ()
           player_clicks = []
+        if e.key == p.K_r: # Reset the board when 'r' is pressed
+          gs = CE.GameState()
+          valid_moves = gs.get_valid_moves()
+          sq_selected = ()
+          player_clicks = []
 
     if move_made:
       valid_moves = gs.get_valid_moves()
       move_made = False
 
     draw_game_state(screen, gs, sq_selected)
+
+    if gs.checkmate or gs.stalemate:
+      font = p.font.SysFont(None, 32)
+      text = "Stalemate" if gs.stalemate else "Black wins by checkmate" if gs.white_to_move else "White wins by checkmate"
+      text = font.render(text, True, p.Color("black"))
+      screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2 - text.get_height()//2))
+
     clock.tick(MAX_FPS)
     p.display.flip()
 
