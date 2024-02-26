@@ -1,5 +1,6 @@
 import pygame as p
 import ChessEngine as CE
+import ChessAI as AI
 from pandas import *
 
 WIDTH = HEIGHT = 512
@@ -61,31 +62,41 @@ def main():
   running = True
   sq_selected = () # No square is selected, keep track of the last click of the user (tuple: (row, col))
   player_clicks = [] # Keep track of player clicks (two tuples: [(6, 4), (4, 4)])
+  player_one = True # If a human is playing white, then this will be True. If an AI is playing, then it will be False
+  player_two = True # Same as above, but for black
+  game_over = False
+  move_undone = False
   while running:
+    human_turn = (gs.white_to_move and player_one) or (not gs.white_to_move and player_two)
+
     for e in p.event.get():
       if e.type == p.QUIT:
         running = False
       # Mouse handler 
       elif e.type == p.MOUSEBUTTONDOWN:
-        location = p.mouse.get_pos()
-        col = location[0]//SQ_SIZE
-        row = location[1]//SQ_SIZE
-        if sq_selected == (row, col):
-          sq_selected = () # Deselect
-        else:
-          sq_selected = (row, col)
-          player_clicks.append(sq_selected)
-        if len(player_clicks) == 2:
-          move = CE.Move(player_clicks[0], player_clicks[1], gs.board)
-          for i in range(len(valid_moves)):
-            if move == valid_moves[i]:
-              print(move.get_chess_notation())
-              gs.make_move(valid_moves[i])
-              move_made = True
-              sq_selected = ()
-              player_clicks = []
-          if not move_made:
-            player_clicks = [sq_selected]
+        if human_turn and not game_over:
+          location = p.mouse.get_pos()
+          col = location[0]//SQ_SIZE
+          row = location[1]//SQ_SIZE
+          if sq_selected == (row, col):
+            sq_selected = () # Deselect
+          else:
+            sq_selected = (row, col)
+            player_clicks.append(sq_selected)
+          if len(player_clicks) == 2:
+            # Second click, make the move
+            move = CE.Move(player_clicks[0], player_clicks[1], gs.board)
+            for i in range(len(valid_moves)):
+              if move == valid_moves[i]:
+                # If the move is valid, make it
+                print(move.get_chess_notation())
+                gs.make_move(valid_moves[i])
+                move_made = True
+                sq_selected = ()
+                player_clicks = []
+                human_turn = False
+            if not move_made:
+              player_clicks = [sq_selected]
       # Key handler
       elif e.type == p.KEYDOWN:
         if e.key == p.K_z: # Undo when 'z' is pressed
@@ -93,15 +104,28 @@ def main():
           move_made = True
           sq_selected = ()
           player_clicks = []
+          game_over = False
+          move_undone = True
         if e.key == p.K_r: # Reset the board when 'r' is pressed
           gs = CE.GameState()
           valid_moves = gs.get_valid_moves()
           sq_selected = ()
           player_clicks = []
+          game_over = False
+          
+    # AI move finder
+    if not human_turn and not game_over and not move_undone:
+      valid_moves = gs.get_valid_moves()
+      if valid_moves:
+        AIMove = AI.find_random_move(valid_moves)
+        print(AIMove.get_chess_notation())
+        gs.make_move(AIMove)
+        move_made = True
 
     if move_made:
       valid_moves = gs.get_valid_moves()
       move_made = False
+      move_undone = False
 
     draw_game_state(screen, gs, sq_selected)
 
