@@ -53,10 +53,14 @@ class GameState():
 
     # Pawn promotion
     if move.is_pawn_promotion:
-      promoted_piece = None
-      while promoted_piece not in ["Q", "R", "N", "B", "q", "r", "n", "b"]:
-        promoted_piece = input("Enter a piece to promote the pawn to (Q, R, N, B): ")
-        self.board[move.end_row][move.end_col] = move.piece_moved[0] + promoted_piece.capitalize()
+      # Assume the agent promotes to a queen
+      self.board[move.end_row][move.end_col] = move.piece_moved[0] + "Q"
+
+      # # Ask the user what piece to promote the pawn to
+      # promoted_piece = None
+      # while promoted_piece not in ["Q", "R", "N", "B", "q", "r", "n", "b"]:
+      #   promoted_piece = input("Enter a piece to promote the pawn to (Q, R, N, B): ")
+      #   self.board[move.end_row][move.end_col] = move.piece_moved[0] + promoted_piece.capitalize()
 
     # Castle move
     if move.is_castle_move:
