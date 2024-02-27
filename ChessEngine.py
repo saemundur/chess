@@ -16,6 +16,7 @@ class GameState():
     self.stalemate = False
     self.draw = False
     self.en_passant_possible = ()
+    self.en_passant_possible_log = [self.en_passant_possible]
     self.castle_rights = CastleRights(True, True, True, True)
     self.castle_rights_log = [CastleRights(self.castle_rights.wks, self.castle_rights.bks, 
                                            self.castle_rights.wqs, self.castle_rights.bqs)]
@@ -55,7 +56,6 @@ class GameState():
     if move.is_pawn_promotion:
       # Assume the agent promotes to a queen
       self.board[move.end_row][move.end_col] = move.piece_moved[0] + "Q"
-
       # # Ask the user what piece to promote the pawn to
       # promoted_piece = None
       # while promoted_piece not in ["Q", "R", "N", "B", "q", "r", "n", "b"]:
@@ -76,6 +76,9 @@ class GameState():
     # En passant capture
     if move.is_en_passant_move:
       self.board[move.start_row][move.end_col] = "--"
+    
+    # Update the en passant possible
+    self.en_passant_possible_log.append(self.en_passant_possible)
 
     # Update the castle rights
     self.update_castle_rights(move)
@@ -83,13 +86,15 @@ class GameState():
                                               self.castle_rights.wqs, self.castle_rights.bqs))
 
   def update_castle_rights(self, move):
-    # Update the castle rights based on whihc piece is moved
+    # Update the castle rights based on which piece is moved
+    # Kings moved
     if move.piece_moved == "wK":
       self.castle_rights.wks = False
       self.castle_rights.wqs = False
     elif move.piece_moved == "bK":
       self.castle_rights.bks = False
       self.castle_rights.bqs = False
+    # Rooks moved
     elif move.piece_moved == "wR":
       if move.start_row == 7:
         if move.start_col == 0:
@@ -102,6 +107,20 @@ class GameState():
           self.castle_rights.bqs = False
         elif move.start_col == 7:
           self.castle_rights.bks = False
+    # Rook is captured
+    if move.piece_captured == "wR":
+      if move.end_row == 7:
+        if move.end_col == 0:
+          self.castle_rights.wqs = False
+        elif move.end_col == 7:
+          self.castle_rights.wks = False
+    elif move.piece_captured == "bR":
+      if move.end_row == 0:
+        if move.end_col == 0:
+          self.castle_rights.bqs = False
+        elif move.end_col == 7:
+          self.castle_rights.bks = False
+
     self.castle_rights_log.append(CastleRights(self.castle_rights.wks, self.castle_rights.bks, 
                                               self.castle_rights.wqs, self.castle_rights.bqs))
 
@@ -124,15 +143,13 @@ class GameState():
       new_rights = self.castle_rights_log[-1]
       self.castle_rights = CastleRights(new_rights.wks, new_rights.bks, new_rights.wqs, new_rights.bqs)
       
-      # undo en passant move
+      # Undo en passant move
       if move.is_en_passant_move:
         self.board[move.end_row][move.end_col] = "--"
         self.board[move.start_row][move.end_col] = move.piece_captured
-        self.en_passant_possible = (move.end_row, move.end_col)
 
-      # Undo a 2 square pawn advance
-      if move.piece_moved[1] == "P" and abs(move.start_row - move.end_row) == 2:
-        self.en_passant_possible = ()
+      self.en_passant_possible_log.pop()
+      self.en_passant_possible = self.en_passant_possible_log[-1]
 
       # Undo a castle move
       if move.is_castle_move:
