@@ -66,15 +66,15 @@ def main():
   player_two = False # Same as above, but for black
   game_over = False
   move_undone = False
+  screen_text = ""
   while running:
     human_turn = (gs.white_to_move and player_one) or (not gs.white_to_move and player_two)
-
     for e in p.event.get():
       if e.type == p.QUIT:
         running = False
       # Mouse handler 
       elif e.type == p.MOUSEBUTTONDOWN:
-        if human_turn and not game_over:
+        if not game_over:
           location = p.mouse.get_pos()
           col = location[0]//SQ_SIZE
           row = location[1]//SQ_SIZE
@@ -83,7 +83,7 @@ def main():
           else:
             sq_selected = (row, col)
             player_clicks.append(sq_selected)
-          if len(player_clicks) == 2:
+          if len(player_clicks) == 2 and human_turn:
             # Second click, make the move
             move = CE.Move(player_clicks[0], player_clicks[1], gs.board)
             for i in range(len(valid_moves)):
@@ -94,7 +94,6 @@ def main():
                 move_made = True
                 sq_selected = ()
                 player_clicks = []
-                human_turn = False
             if not move_made:
               player_clicks = [sq_selected]
       # Key handler
@@ -106,21 +105,25 @@ def main():
           player_clicks = []
           game_over = False
           move_undone = True
+          screen_text = ""
         if e.key == p.K_r: # Reset the board when 'r' is pressed
           gs = CE.GameState()
           valid_moves = gs.get_valid_moves()
           sq_selected = ()
           player_clicks = []
           game_over = False
+          move_undone = True
+          screen_text = ""
           
     # AI move finder
     if not human_turn and not game_over and not move_undone:
       valid_moves = gs.get_valid_moves()
-      if valid_moves:
+      AIMove = AI.find_best_move(gs, valid_moves)
+      if AIMove is None:
         AIMove = AI.find_random_move(valid_moves)
-        print(AIMove.get_chess_notation())
-        gs.make_move(AIMove)
-        move_made = True
+      print(AIMove.get_chess_notation())
+      gs.make_move(AIMove)
+      move_made = True
 
     if move_made:
       valid_moves = gs.get_valid_moves()
@@ -131,9 +134,9 @@ def main():
 
     if gs.checkmate or gs.stalemate:
       font = p.font.SysFont(None, 32)
-      text = "Stalemate" if gs.stalemate else "Black wins by checkmate" if gs.white_to_move else "White wins by checkmate"
-      text = font.render(text, True, p.Color("black"))
-      screen.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT//2 - text.get_height()//2))
+      screen_text = "Stalemate" if gs.stalemate else "Black wins by checkmate" if gs.white_to_move else "White wins by checkmate"
+      screen_text = font.render(screen_text, True, p.Color("black"))
+      screen.blit(screen_text, (WIDTH//2 - screen_text.get_width()//2, HEIGHT//2 - screen_text.get_height()//2))
 
     clock.tick(MAX_FPS)
     p.display.flip()
