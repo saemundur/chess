@@ -87,42 +87,51 @@ class GameState():
 
   def update_castle_rights(self, move):
     # Update the castle rights based on which piece is moved
+    wks = self.castle_rights.wks
+    bks = self.castle_rights.bks
+    wqs = self.castle_rights.wqs
+    bqs = self.castle_rights.bqs
+    
     # Kings moved
     if move.piece_moved == "wK":
-      self.castle_rights.wks = False
-      self.castle_rights.wqs = False
+      print(move)
+      wks = False
+      wqs = False
     elif move.piece_moved == "bK":
-      self.castle_rights.bks = False
-      self.castle_rights.bqs = False
+      print(move)
+
+      bks = False
+      bqs = False
     # Rooks moved
     elif move.piece_moved == "wR":
       if move.start_row == 7:
         if move.start_col == 0:
-          self.castle_rights.wqs = False
+          wqs = False
         elif move.start_col == 7:
-          self.castle_rights.wks = False
+          wks = False
     elif move.piece_moved == "bR":
       if move.start_row == 0:
         if move.start_col == 0:
-          self.castle_rights.bqs = False
+          bqs = False
         elif move.start_col == 7:
-          self.castle_rights.bks = False
+          bks = False
     # Rook is captured
     if move.piece_captured == "wR":
       if move.end_row == 7:
         if move.end_col == 0:
-          self.castle_rights.wqs = False
+          wqs = False
         elif move.end_col == 7:
-          self.castle_rights.wks = False
+          wks = False
     elif move.piece_captured == "bR":
       if move.end_row == 0:
         if move.end_col == 0:
-          self.castle_rights.bqs = False
+          bqs = False
         elif move.end_col == 7:
-          self.castle_rights.bks = False
+          bks = False
 
-    self.castle_rights_log.append(CastleRights(self.castle_rights.wks, self.castle_rights.bks, 
-                                              self.castle_rights.wqs, self.castle_rights.bqs))
+      self.castle_rights = CastleRights(wks, bks, wqs, bqs)
+    # self.castle_rights_log.append(CastleRights(self.castle_rights.wks, self.castle_rights.bks, 
+                                              # self.castle_rights.wqs, self.castle_rights.bqs))
 
   def undo_move(self):
     # Undo the last move
@@ -139,10 +148,9 @@ class GameState():
         self.black_king_location = (move.start_row, move.start_col)
       
       # Undo castle rights
-      self.castle_rights_log.pop()
-      new_rights = self.castle_rights_log[-1]
-      self.castle_rights = CastleRights(new_rights.wks, new_rights.bks, new_rights.wqs, new_rights.bqs)
-      
+      self.castle_rights_log.pop()  # get rid of the new castle rights from the move we are undoing
+      self.castle_rights = self.castle_rights_log[-1]
+
       # Undo en passant move
       if move.is_en_passant_move:
         self.board[move.end_row][move.end_col] = "--"
@@ -244,6 +252,8 @@ class GameState():
         self.pins.remove(self.pins[i])
         break
     
+    king_row, king_col = self.white_king_location if self.white_to_move else self.black_king_location
+
     # Get a list of valid pawn moves for white
     if self.white_to_move and r >= 1:
       # Move one square up
@@ -283,14 +293,50 @@ class GameState():
           if not piece_pinned or pin_direction == (1, -1):
             moves.append(Move((r, c), (r+1, c-1), self.board))
         elif (r+1, c-1) == self.en_passant_possible:
-          moves.append(Move((r, c), (r+1, c-1), self.board, is_en_passant_move=True))
+          attacking_piece = blocking_piece = False
+          if king_row == r:
+            if king_col < c:
+              inside_range = range(king_col+1, c-1)
+              outside_range = range(c+1, 8)
+            else:
+              inside_range = range(king_col-1, c+1, -1)
+              outside_range = range(c-2, -1, -1)
+            for i in inside_range:
+              if self.board[r][i] != "--":
+                blocking_piece = True
+            for i in outside_range:
+              square = self.board[r][i]
+              if square[0] == "w" and square[1] == "R":
+                attacking_piece = True
+              elif square != "--":
+                blocking_piece = True
+          if not attacking_piece or blocking_piece: 
+            moves.append(Move((r, c), (r+1, c-1), self.board, is_en_passant_move=True))
       # Capture to the right
       if c+1 <= 7:
         if self.board[r+1][c+1][0] == "w":
           if not piece_pinned or pin_direction == (1, 1):
             moves.append(Move((r, c), (r+1, c+1), self.board))
         elif (r+1, c+1) == self.en_passant_possible:
-          moves.append(Move((r, c), (r+1, c+1), self.board, is_en_passant_move=True))
+          attacking_piece = blocking_piece = False
+          if king_row == r:
+            if king_col < c:
+              inside_range = range(king_col+1, c-1)
+              outside_range = range(c+1, 8)
+            else:
+              inside_range = range(king_col-1, c+1, -1)
+              outside_range = range(c-2, -1, -1)
+            for i in inside_range:
+              if self.board[r][i] != "--":
+                blocking_piece = True
+            for i in outside_range:
+              square = self.board[r][i]
+              if square[0] == "w" and square[1] == "R":
+                attacking_piece = True
+              elif square != "--":
+                blocking_piece = True
+          if not attacking_piece or blocking_piece:
+            moves.append(Move((r, c), (r+1, c+1), self.board, is_en_passant_move=True))
 
   def get_rook_moves(self, r, c, moves):
     # Get a list of valid rook moves
@@ -476,11 +522,11 @@ class GameState():
           elif end_piece[0] == enemy_color:
             piece_type = end_piece[1]
             # 5 possibilities here for the attacking piece to cause a check
-            # 1. Straight away from the king and the piece is a rook
-            # 2. Diagonally away from the king and the piece is a bishop
-            # 3. 1 square away from the king and the piece is a pawn
-            # 4. Any direction and the piece is a queen
-            # 5. Any direction 1 square away and the piece is a king
+              # 1. Straight away from the king and the piece is a rook
+              # 2. Diagonally away from the king and the piece is a bishop
+              # 3. 1 square away from the king and the piece is a pawn
+              # 4. Any direction and the piece is a queen
+              # 5. Any direction 1 square away and the piece is a king
             if (0 <= j <= 3 and piece_type == "R") or \
               (4 <= j <= 7 and piece_type == "B") or \
               (i == 1 and piece_type == "P" and ((enemy_color == "w" and 6 <= j <= 7) or (enemy_color == "b" and 4 <= j <= 5))) or \
@@ -523,6 +569,9 @@ class CastleRights():
     self.bks = bks
     self.wqs = wqs
     self.bqs = bqs
+  
+  def __str__(self) -> str:
+    return str(self.wks) + str(self.bks) + str(self.wqs) + str(self.bqs)
 
 class Move():
   # Maps keys to values
