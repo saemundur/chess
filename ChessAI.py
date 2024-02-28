@@ -1,22 +1,41 @@
 import random
+from ChessEngine import Move as Move
 
 piceScore = {"K": 0, "Q": 9, "R": 5, "B": 3, "N": 3, "P": 1}
 CHECKMATE = 1000
 STALEMATE = 0
-DEPTH = 2
+DEPTH = 1
 
+# king_scores = [
+
+# knight_scores = [
+#     [-50,-40,-30,-30,-30,-30,-40,-50],
+#     [-40,-20,  0,  0,  0,  0,-20,-40],
+#     [-30,  0, 10, 15, 15, 10,  0,-30],
+#     [-30,  5, 15, 20, 20, 15,  5,-30],
+#     [-30,  0, 15, 20, 20, 15,  0,-30],
+#     [-30,  5, 10, 15, 15, 10,  5,-30],
+#     [-40,-20,  0,  5,  5,  0,-20,-40],
+#     [-50,-40,-30,-30,-30,-30,-40,-50]
+# ]
+# pice_position_scores = {
+#     "K": king_scores,
+#     "N": knight_scores,
+# }
 
 def find_random_move(valid_moves):
     return random.choice(valid_moves)
 
-def find_best_move(gs, valid_moves):
+def find_best_move(gs, valid_moves, return_queue):
+    global next_move
     turn_multiplier = 1 if gs.white_to_move else -1
     # best_move = find_greediest_move(gs, valid_moves, turn_multiplier)
     # best_move = find_move_2l_minimax(gs, valid_moves, turn_multiplier)
     # best_move = find_move_rec_minimax(gs, valid_moves)
     # best_move = find_move_negamax(gs, valid_moves, DEPTH, turn_multiplier)
     best_move = find_move_negamax_alpha_beta(gs, valid_moves, DEPTH, turn_multiplier)
-    return best_move
+    return_queue.put(best_move)
+
 
 def find_move_2l_minimax(gs, valid_moves, turn_multiplier):
     opponent_minimax_score = CHECKMATE
@@ -155,14 +174,18 @@ def score_board(gs):
             return CHECKMATE
     elif gs.stalemate:
         return STALEMATE
-    return score_material(gs.board)
+    return score_material(gs)
 
-def score_material(board):
+def score_material(gs):
     score = 0
-    for row in board:
-        for square in row:
-            if square[0] == 'w':
-                score += piceScore[square[1]]
-            elif square[0] == 'b':
-                score -= piceScore[square[1]]
-    return score
+    turn_multiplier = 1 if gs.white_to_move == 'w' else -1
+    for row in range(8):
+        for col in range(8):
+            square = gs.board[row][col]
+            # Score position
+            # TODO
+            # if square[1] not '--':
+                # score += pice_position_scores[square[1]][row][col]
+            # Score material
+            score += piceScore[square[1]]
+    return score * turn_multiplier
