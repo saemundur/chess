@@ -1,10 +1,13 @@
 import random
 from ChessEngine import Move as Move
+from Resources.PieceSquareTables import PieceSquareTable
 
 piceScore = {"K": 0, "Q": 9, "R": 5, "B": 3, "N": 3, "P": 1}
 CHECKMATE = 1000
 STALEMATE = 0
-DEPTH = 1
+POSITION_SCORE_MULTIPLIER = 0.1
+DEPTH = 3
+PST = PieceSquareTable()
 
 def find_random_move(valid_moves):
     return random.choice(valid_moves)
@@ -124,7 +127,6 @@ def negamax_helper(gs, valid_moves, depth, turn_multiplier):
 def find_move_negamax_alpha_beta(gs, valid_moves, depth, turn_multiplier):
     global next_move
     next_move = None
-    random.shuffle(valid_moves)
     negamax_alpha_beta_helper(gs, valid_moves, depth, turn_multiplier, -CHECKMATE, CHECKMATE)
     return next_move
 
@@ -132,7 +134,8 @@ def negamax_alpha_beta_helper(gs, valid_moves, depth, turn_multiplier, alpha, be
     global next_move
     if depth == 0:
         return turn_multiplier * score_board(gs)
-    # Move ordering
+    # TODO Move ordering
+    random.shuffle(valid_moves)
     max_score = -CHECKMATE
     for move in valid_moves:
         gs.make_move(move)
@@ -169,6 +172,6 @@ def score_material(gs):
             # Score material
                 score += piceScore[square[1]]
             # Score position
-            # TODO
+                score += PST.get_piece_position_score(square[1], row, col, len(gs.move_log), gs.white_to_move) * POSITION_SCORE_MULTIPLIER
                 # score += pice_position_scores[square[1]][row][col]
     return score * turn_multiplier

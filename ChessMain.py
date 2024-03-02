@@ -104,7 +104,7 @@ def main():
   player_clicks = [] # Keep track of player clicks (two tuples: [(6, 4), (4, 4)])
   move_made = False # Flag variable for when a move is made
   player_one = False # If a human is playing white, then this will be True. If an AI is playing, then it will be False
-  player_two = True # Same as above, but for black
+  player_two = False # Same as above, but for black
   game_over = False
   move_undone = False
   AI_thinking = False
@@ -133,11 +133,6 @@ def main():
             for i in range(len(valid_moves)):
               if move == valid_moves[i]:
                 # If the move is valid, make it
-                print(move.get_chess_notation())
-                print(gs.castle_rights_log[-1])
-                print((len(gs.castle_rights_log)))
-                # for m in gs.move_log:
-                #   print(m.get_chess_notation())
                 gs.make_move(valid_moves[i])
                 move_made = True
                 sq_selected = ()
@@ -186,9 +181,7 @@ def main():
       if AIMove is None and valid_moves:
         AIMove = AI.find_random_move(valid_moves)
       if AIMove is not None:
-        print(AIMove.get_chess_notation())
         gs.make_move(AIMove)
-        print(gs.castle_rights)
         if gs.checkmate or gs.stalemate:
           game_over = True
       move_made = True

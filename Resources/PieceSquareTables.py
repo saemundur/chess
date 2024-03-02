@@ -1,3 +1,4 @@
+LATE_GAME_THRESHOLD = 20
 class PieceSquareTable:
   def __init__(self) -> None:
     self.king_middle_game_score = [
@@ -71,7 +72,7 @@ class PieceSquareTable:
       [0, 0, 0, 0, 0, 0, 0, 0]
     ]
     self.piece_position_scores = {
-      "q": self.queen_scores,
+      "Q": self.queen_scores,
       "K": self.king_middle_game_score,
       "KE": self.king_end_game_score,
       "N": self.knight_scores,
@@ -79,3 +80,14 @@ class PieceSquareTable:
       "R": self.rook_scores,
       "P": self.pawn_scores
     }
+  
+  def get_piece_position_score(self, piece, r, c, turn_count, white_to_move):
+    if not white_to_move:
+      r = 7 - r
+      c = 7 - c
+    if piece == "K":
+      if turn_count < LATE_GAME_THRESHOLD:
+        return self.king_middle_game_score[r][c]
+      else:
+        return self.king_end_game_score[r][c]
+    return self.piece_position_scores[piece][r][c]

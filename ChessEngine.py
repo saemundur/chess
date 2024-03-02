@@ -18,8 +18,7 @@ class GameState():
     self.en_passant_possible = ()
     self.en_passant_possible_log = [self.en_passant_possible]
     self.castle_rights = CastleRights(True, True, True, True)
-    self.castle_rights_log = [CastleRights(self.castle_rights.wks, self.castle_rights.bks, 
-                                           self.castle_rights.wqs, self.castle_rights.bqs)]
+    self.castle_rights_log = [self.castle_rights]
     self.white_king_location = (7, 4)
     self.black_king_location = (0, 4)
     self.move_log = []
@@ -82,8 +81,6 @@ class GameState():
 
     # Update the castle rights
     self.update_castle_rights(move)
-    self.castle_rights_log.append(CastleRights(self.castle_rights.wks, self.castle_rights.bks, 
-                                              self.castle_rights.wqs, self.castle_rights.bqs))
 
   def update_castle_rights(self, move):
     # Update the castle rights based on which piece is moved
@@ -94,12 +91,9 @@ class GameState():
     
     # Kings moved
     if move.piece_moved == "wK":
-      print(move)
       wks = False
       wqs = False
     elif move.piece_moved == "bK":
-      print(move)
-
       bks = False
       bqs = False
     # Rooks moved
@@ -129,9 +123,9 @@ class GameState():
         elif move.end_col == 7:
           bks = False
 
-      self.castle_rights = CastleRights(wks, bks, wqs, bqs)
-    # self.castle_rights_log.append(CastleRights(self.castle_rights.wks, self.castle_rights.bks, 
-                                              # self.castle_rights.wqs, self.castle_rights.bqs))
+    self.castle_rights = CastleRights(wks, bks, wqs, bqs)
+
+    self.castle_rights_log.append(self.castle_rights)
 
   def undo_move(self):
     # Undo the last move
@@ -570,8 +564,8 @@ class CastleRights():
     self.wqs = wqs
     self.bqs = bqs
   
-  def __str__(self) -> str:
-    return str(self.wks) + str(self.bks) + str(self.wqs) + str(self.bqs)
+  def __str__(self):
+    return f"White kingside: {self.wks}, Black kingside: {self.bks}, White queenside: {self.wqs}, Black queenside: {self.bqs}"
 
 class Move():
   # Maps keys to values
