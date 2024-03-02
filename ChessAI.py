@@ -6,23 +6,6 @@ CHECKMATE = 1000
 STALEMATE = 0
 DEPTH = 1
 
-# king_scores = [
-
-# knight_scores = [
-#     [-50,-40,-30,-30,-30,-30,-40,-50],
-#     [-40,-20,  0,  0,  0,  0,-20,-40],
-#     [-30,  0, 10, 15, 15, 10,  0,-30],
-#     [-30,  5, 15, 20, 20, 15,  5,-30],
-#     [-30,  0, 15, 20, 20, 15,  0,-30],
-#     [-30,  5, 10, 15, 15, 10,  5,-30],
-#     [-40,-20,  0,  5,  5,  0,-20,-40],
-#     [-50,-40,-30,-30,-30,-30,-40,-50]
-# ]
-# pice_position_scores = {
-#     "K": king_scores,
-#     "N": knight_scores,
-# }
-
 def find_random_move(valid_moves):
     return random.choice(valid_moves)
 
@@ -182,10 +165,10 @@ def score_material(gs):
     for row in range(8):
         for col in range(8):
             square = gs.board[row][col]
+            if square != '--':
+            # Score material
+                score += piceScore[square[1]]
             # Score position
             # TODO
-            # if square[1] not '--':
                 # score += pice_position_scores[square[1]][row][col]
-            # Score material
-            score += piceScore[square[1]]
     return score * turn_multiplier

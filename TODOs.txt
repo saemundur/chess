@@ -1,0 +1,29 @@
+AI improvments
+  - Weigh board score by 
+    - Attacking moves
+    - Defending moves
+  - Openeings
+  - End game strategy
+      https://syzygy-tables.info/?fen=R5k1/8/6K1/8/8/8/8/8_b_-_-_0_1
+
+Performance improvments
+  - Bitboard
+      https://www.chessprogramming.org/Bitboards
+  - Board as numpy arrays
+  - Keep a map of previously seen positions
+  - Calculate attacks / defences when comping up with valid moves
+  - Turn ordering
+  - Dynamic depth searches 
+
+Code improvments
+  - Refactor main function
+  - Implement 
+
+UI improvments
+  - Pick to play white or black
+  - Pick different Bots to play vs
+  - Clock
+  - Useful print statements 
+
+Bug fixes
+ - Undo function when playing vs fast moving AI
