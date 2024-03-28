@@ -199,7 +199,7 @@ class GameState():
               break
         for i in range(len(moves)-1, -1, -1):
           if moves[i].piece_moved[1] != "K":
-            if not (moves[i].end_row, moves[i].end_col) in valid_squares:
+            if (moves[i].end_row, moves[i].end_col) not in valid_squares:
               moves.remove(moves[i])
       else:
         # Double check, the king has to move

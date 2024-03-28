@@ -1,7 +1,6 @@
 import pygame as p
 import ChessEngine as CE
 import ChessAI as AI
-from pandas import *
 from multiprocessing import Process, Queue
 
 BOARD_WIDTH = BOARD_HEIGHT = 512
@@ -90,21 +89,23 @@ def draw_end_game_text(screen, text):
   screen.blit(text_object, text_location.move(2, 2))
   
 def main():
+  # Initialize game assets
   p.init()
   screen = p.display.set_mode((BOARD_WIDTH + MOVE_LOG_PANEL_WIDTH, BOARD_HEIGHT))
   clock = p.time.Clock()
   screen.fill(p.Color("white"))
-  load_images()
   move_log_font = p.font.SysFont("Arial", 16, False, False)
-
   gs = CE.GameState()
+  load_images()
+
+  # Initialize game variables
   valid_moves = gs.get_valid_moves()
+  sq_selected = ()
+  player_clicks = []
   running = True
-  sq_selected = () # No square is selected, keep track of the last click of the user (tuple: (row, col))
-  player_clicks = [] # Keep track of player clicks (two tuples: [(6, 4), (4, 4)])
-  move_made = False # Flag variable for when a move is made
-  player_one = False # If a human is playing white, then this will be True. If an AI is playing, then it will be False
-  player_two = False # Same as above, but for black
+  move_made = False
+  player_one = False
+  player_two = False
   game_over = False
   move_undone = False
   AI_thinking = False

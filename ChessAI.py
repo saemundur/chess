@@ -26,7 +26,7 @@ def find_best_move(gs, valid_moves, return_queue):
 def find_move_2l_minimax(gs, valid_moves, turn_multiplier):
     opponent_minimax_score = CHECKMATE
     best_player_move = None
-    random.shuffle(valid_moves) # Randomize the order of moves to prevent the AI from playing the same game every time
+    random.shuffle(valid_moves)
     for player_move in valid_moves:
         gs.make_move(player_move)
         opponent_moves = gs.get_valid_moves()
