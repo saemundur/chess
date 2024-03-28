@@ -9,8 +9,10 @@ POSITION_SCORE_MULTIPLIER = 0.1
 DEPTH = 3
 PST = PieceSquareTable()
 
+
 def find_random_move(valid_moves):
     return random.choice(valid_moves)
+
 
 def find_best_move(gs, valid_moves, return_queue):
     global next_move
@@ -48,6 +50,7 @@ def find_move_2l_minimax(gs, valid_moves, turn_multiplier):
         gs.undo_move()
     return best_player_move
 
+
 def find_move_rec_minimax_helper(gs, valid_moves, depth, white_to_move):
     global next_move
     if depth == 0:
@@ -57,7 +60,7 @@ def find_move_rec_minimax_helper(gs, valid_moves, depth, white_to_move):
         for move in valid_moves:
             gs.make_move(move)
             next_moves = gs.get_valid_moves()
-            score = find_move_rec_minimax_helper(gs, next_moves, depth-1, False)
+            score = find_move_rec_minimax_helper(gs, next_moves, depth - 1, False)
             if score > max_score:
                 max_score = score
                 if depth == DEPTH:
@@ -69,7 +72,7 @@ def find_move_rec_minimax_helper(gs, valid_moves, depth, white_to_move):
         for move in valid_moves:
             gs.make_move(move)
             next_moves = gs.get_valid_moves()
-            score = find_move_rec_minimax_helper(gs, next_moves, depth-1, True)
+            score = find_move_rec_minimax_helper(gs, next_moves, depth - 1, True)
             if score < min_score:
                 min_score = score
                 if depth == DEPTH:
@@ -77,13 +80,15 @@ def find_move_rec_minimax_helper(gs, valid_moves, depth, white_to_move):
             gs.undo_move()
         return min_score
 
+
 def find_move_rec_minimax(gs, valid_moves):
     global next_move
     next_move = None
     random.shuffle(valid_moves)
     find_move_rec_minimax_helper(gs, valid_moves, DEPTH, True)
     return next_move
-                      
+
+
 def find_greediest_move(gs, valid_moves, turn_multiplier):
     max_score = -CHECKMATE
     best_move = None
@@ -101,12 +106,14 @@ def find_greediest_move(gs, valid_moves, turn_multiplier):
         gs.undo_move()
     return best_move
 
+
 def find_move_negamax(gs, valid_moves, depth, turn_multiplier):
     global next_move
     next_move = None
     random.shuffle(valid_moves)
     negamax_helper(gs, valid_moves, depth, turn_multiplier)
     return next_move
+
 
 def negamax_helper(gs, valid_moves, depth, turn_multiplier):
     global next_move
@@ -116,7 +123,7 @@ def negamax_helper(gs, valid_moves, depth, turn_multiplier):
     for move in valid_moves:
         gs.make_move(move)
         next_moves = gs.get_valid_moves()
-        score = -negamax_helper(gs, next_moves, depth-1, -turn_multiplier)
+        score = -negamax_helper(gs, next_moves, depth - 1, -turn_multiplier)
         if score > max_score:
             max_score = score
             if depth == DEPTH:
@@ -124,11 +131,15 @@ def negamax_helper(gs, valid_moves, depth, turn_multiplier):
         gs.undo_move()
     return max_score
 
+
 def find_move_negamax_alpha_beta(gs, valid_moves, depth, turn_multiplier):
     global next_move
     next_move = None
-    negamax_alpha_beta_helper(gs, valid_moves, depth, turn_multiplier, -CHECKMATE, CHECKMATE)
+    negamax_alpha_beta_helper(
+        gs, valid_moves, depth, turn_multiplier, -CHECKMATE, CHECKMATE
+    )
     return next_move
+
 
 def negamax_alpha_beta_helper(gs, valid_moves, depth, turn_multiplier, alpha, beta):
     global next_move
@@ -140,7 +151,9 @@ def negamax_alpha_beta_helper(gs, valid_moves, depth, turn_multiplier, alpha, be
     for move in valid_moves:
         gs.make_move(move)
         next_moves = gs.get_valid_moves()
-        score = -negamax_alpha_beta_helper(gs, next_moves, depth-1, -turn_multiplier, -beta, -alpha)
+        score = -negamax_alpha_beta_helper(
+            gs, next_moves, depth - 1, -turn_multiplier, -beta, -alpha
+        )
         if score > max_score:
             max_score = score
             if depth == DEPTH:
@@ -152,6 +165,7 @@ def negamax_alpha_beta_helper(gs, valid_moves, depth, turn_multiplier, alpha, be
             break
     return max_score
 
+
 def score_board(gs):
     if gs.checkmate:
         if gs.white_to_move:
@@ -162,16 +176,22 @@ def score_board(gs):
         return STALEMATE
     return score_material(gs)
 
+
 def score_material(gs):
     score = 0
-    turn_multiplier = 1 if gs.white_to_move == 'w' else -1
+    turn_multiplier = 1 if gs.white_to_move == "w" else -1
     for row in range(8):
         for col in range(8):
             square = gs.board[row][col]
-            if square != '--':
-            # Score material
+            if square != "--":
+                # Score material
                 score += piceScore[square[1]]
-            # Score position
-                score += PST.get_piece_position_score(square[1], row, col, len(gs.move_log), gs.white_to_move) * POSITION_SCORE_MULTIPLIER
+                # Score position
+                score += (
+                    PST.get_piece_position_score(
+                        square[1], row, col, len(gs.move_log), gs.white_to_move
+                    )
+                    * POSITION_SCORE_MULTIPLIER
+                )
                 # score += pice_position_scores[square[1]][row][col]
     return score * turn_multiplier
