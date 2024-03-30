@@ -1,6 +1,9 @@
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame as p
 import ChessEngine as CE
 import ChessAI as AI
+from icecream import ic
 from multiprocessing import Process, Queue
 
 BOARD_WIDTH = BOARD_HEIGHT = 512
@@ -197,16 +200,14 @@ def main():
             if not move_finder_process.is_alive():
                 AIMove = return_queue.get()
                 if AIMove is None:
+                    ic("No valid moves")
                     AIMove = AI.find_random_move(valid_moves)
-            valid_moves = gs.get_valid_moves()
-            AIMove = AI.find_best_move(gs, valid_moves, return_queue)
-            if AIMove is None and valid_moves:
-                AIMove = AI.find_random_move(valid_moves)
-            if AIMove is not None:
                 gs.make_move(AIMove)
-                if gs.checkmate or gs.stalemate:
-                    game_over = True
-            move_made = True
+                move_made = True
+                AI_thinking = False
+
+        if gs.checkmate or gs.stalemate:
+            game_over = True
 
         if move_made:
             valid_moves = gs.get_valid_moves()

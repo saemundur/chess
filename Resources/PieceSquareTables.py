@@ -89,7 +89,7 @@ class PieceSquareTable:
             c = 7 - c
         if piece == "K":
             if turn_count < LATE_GAME_THRESHOLD:
-                return self.king_middle_game_score[r][c]
+                return self.king_middle_game_score[c][r]
             else:
-                return self.king_end_game_score[r][c]
-        return self.piece_position_scores[piece][r][c]
+                return self.king_end_game_score[c][r]
+        return self.piece_position_scores[piece][c][r]
