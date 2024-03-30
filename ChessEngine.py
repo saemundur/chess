@@ -58,11 +58,6 @@ class GameState:
         if move.is_pawn_promotion:
             # Assume the agent promotes to a queen
             self.board[move.end_row][move.end_col] = move.piece_moved[0] + "Q"
-            # # Ask the user what piece to promote the pawn to
-            # promoted_piece = None
-            # while promoted_piece not in ["Q", "R", "N", "B", "q", "r", "n", "b"]:
-            #   promoted_piece = input("Enter a piece to promote the pawn to (Q, R, N, B): ")
-            #   self.board[move.end_row][move.end_col] = move.piece_moved[0] + promoted_piece.capitalize()
 
         # Castle move
         if move.is_castle_move:
@@ -149,7 +144,7 @@ class GameState:
                 self.black_king_location = (move.start_row, move.start_col)
 
             # Undo castle rights
-            self.castle_rights_log.pop()  # get rid of the new castle rights from the move we are undoing
+            self.castle_rights_log.pop()
             self.castle_rights = self.castle_rights_log[-1]
 
             # Undo en passant move
@@ -595,7 +590,8 @@ class GameState:
                             # First allied piece could be pinned
                             possible_pin = (end_row, end_col, d[0], d[1])
                         else:
-                            # Second allied piece, so no pin or check from this direction
+                            # Second allied piece,
+                            # no pin or check from this direction
                             break
                     elif end_piece[0] == enemy_color:
                         piece_type = end_piece[1]
@@ -668,7 +664,7 @@ class CastleRights:
         self.bqs = bqs
 
     def __str__(self):
-        return f"White kingside: {self.wks}, Black kingside: {self.bks}, White queenside: {self.wqs}, Black queenside: {self.bqs}"
+        return f"WK: {self.wks}, BK: {self.bks}, WQ: {self.wqs}, BQ: {self.bqs}"
 
 
 class Move:

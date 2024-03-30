@@ -4,7 +4,8 @@ import ChessEngine as CE
 import ChessAI as AI
 from icecream import ic
 from multiprocessing import Process, Queue
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 BOARD_WIDTH = BOARD_HEIGHT = 512
 MOVE_LOG_PANEL_WIDTH = 300
@@ -144,7 +145,8 @@ def main():
                     location = p.mouse.get_pos()
                     col = location[0] // SQ_SIZE
                     row = location[1] // SQ_SIZE
-                    # Deselect the square if it is already selected or if the click is out of bounds
+                    # Deselect the square if it is already selected
+                    # or if the click is out of bounds
                     if sq_selected == (row, col) or col >= 8 or row >= 8:
                         sq_selected = ()
                     else:

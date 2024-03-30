@@ -19,7 +19,9 @@ def find_best_move(gs, valid_moves, return_queue):
     global next_move
     next_move = None
     turn_multiplier = 1 if gs.white_to_move else -1
-    find_move_negamax_alpha_beta(gs, valid_moves, DEPTH, -CHECKMATE, CHECKMATE, turn_multiplier)
+    find_move_negamax_alpha_beta(
+        gs, valid_moves, DEPTH, -CHECKMATE, CHECKMATE, turn_multiplier
+    )
     return_queue.put(next_move)
 
 
@@ -73,7 +75,8 @@ def score_material(gs):
                     PST.get_piece_position_score(
                         square[1], row, col, len(gs.move_log), gs.white_to_move
                     )
-                    * POSITION_SCORE_MULTIPLIER * score_multiplier
+                    * POSITION_SCORE_MULTIPLIER
+                    * score_multiplier
                 )
     final_score = score
     return final_score
