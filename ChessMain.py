@@ -1,10 +1,10 @@
 import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame as p
 import ChessEngine as CE
 import ChessAI as AI
 from icecream import ic
 from multiprocessing import Process, Queue
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 BOARD_WIDTH = BOARD_HEIGHT = 512
 MOVE_LOG_PANEL_WIDTH = 300

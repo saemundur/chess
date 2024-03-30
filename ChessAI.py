@@ -4,7 +4,7 @@ from Resources.PieceSquareTables import PieceSquareTable
 piceScore = {"K": 0, "Q": 9, "R": 5, "B": 3, "N": 3, "P": 1}
 CHECKMATE = 1000
 STALEMATE = 0
-POSITION_SCORE_MULTIPLIER = 0.01
+POSITION_SCORE_MULTIPLIER = 0.1
 DEPTH = 3
 PST = PieceSquareTable()
 
